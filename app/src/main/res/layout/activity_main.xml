@@ -9,9 +9,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.mac.chris.openweathermapretrofit.MainActivity">
 
-    <TextView
-        android:id="@+id/textView"
+    <EditText
+        android:id="@+id/searchText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:hint="Enter City"/>
+
+    <Button
+        android:id="@+id/searchButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Search"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:id="@+id/tempText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/searchButton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
 </RelativeLayout>

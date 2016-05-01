@@ -3,8 +3,12 @@ package com.mac.chris.openweathermapretrofit;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import com.mac.chris.openweathermapretrofit.data.List;
 import com.mac.chris.openweathermapretrofit.data.WeatherData;
 
 import retrofit2.Call;
@@ -13,20 +17,40 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String BASE_URL = "http://api.openweathermap.org";
+    public static final String BASE_URL = "http://api.openweathermap.org/";
     public static final String API_KEY = "a834182bf0de3d05f5887b94e4f14b96";
 
-    TextView textView;
+    EditText searchText;
+    TextView tempText;
+    Button search;
+
+    WeatherData mWeatherData;
+    java.util.List<List> mList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = (TextView) findViewById(R.id.textView);
+        searchText = (EditText) findViewById(R.id.searchText);
+        tempText = (TextView) findViewById(R.id.tempText);
+        search = (Button) findViewById(R.id.searchButton);
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RetrofitTask rt = new RetrofitTask();
+                rt.execute();
+            }
+        });
 
-        RetrofitTask rt = new RetrofitTask();
-        rt.execute();
+    }
+
+    public String printForecast() {
+        StringBuilder str = new StringBuilder();
+        for (int i=0; i<mList.size(); i++) {
+            str.append(String.valueOf(mList.get(i).getTemp().getDay())+"\n");
+        }
+        return str.toString();
     }
 
     public class RetrofitTask extends AsyncTask<Void, Void, WeatherData> {
@@ -43,11 +67,17 @@ public class MainActivity extends AppCompatActivity {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             mApi = retrofit.create(OpenWeatherService.class);
-            query = mApi.listWeather();
+            query = mApi.listWeather(
+                    searchText.getText().toString(),
+                    "json",
+                    "metric",
+                    "7",
+                    API_KEY);
         }
 
         @Override
         protected WeatherData doInBackground(Void... params) {
+
             try {
                 response = query.execute().body();
                 if (response == null)
@@ -62,7 +92,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(WeatherData weatherData) {
             super.onPostExecute(weatherData);
-            textView.setText(weatherData.getCity().getName());
+
+            mWeatherData = weatherData;
+            mList = mWeatherData.getList();
+            tempText.setText(printForecast());
+
         }
 
     }
