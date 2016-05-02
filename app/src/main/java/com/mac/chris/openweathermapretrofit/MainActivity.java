@@ -3,6 +3,8 @@ package com.mac.chris.openweathermapretrofit;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,11 +23,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String API_KEY = "a834182bf0de3d05f5887b94e4f14b96";
 
     EditText searchText;
-    TextView tempText;
+    TextView cityName;
     Button search;
 
     WeatherData mWeatherData;
     java.util.List<List> mList;
+
+    RecyclerView recyclerView;
+    RVAdapter rvAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,24 +39,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         searchText = (EditText) findViewById(R.id.searchText);
-        tempText = (TextView) findViewById(R.id.tempText);
+        cityName = (TextView) findViewById(R.id.cityText);
+        recyclerView = (RecyclerView) findViewById(R.id.rv);
+
         search = (Button) findViewById(R.id.searchButton);
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 RetrofitTask rt = new RetrofitTask();
                 rt.execute();
+
             }
         });
 
-    }
-
-    public String printForecast() {
-        StringBuilder str = new StringBuilder();
-        for (int i=0; i<mList.size(); i++) {
-            str.append(String.valueOf(mList.get(i).getTemp().getDay())+"\n");
-        }
-        return str.toString();
     }
 
     public class RetrofitTask extends AsyncTask<Void, Void, WeatherData> {
@@ -95,7 +96,11 @@ public class MainActivity extends AppCompatActivity {
 
             mWeatherData = weatherData;
             mList = mWeatherData.getList();
-            tempText.setText(printForecast());
+            cityName.setText(searchText.getText().toString());
+            recyclerView.setHasFixedSize(true);
+            recyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
+            rvAdapter = new RVAdapter(mList);
+            recyclerView.setAdapter(rvAdapter);
 
         }
 
